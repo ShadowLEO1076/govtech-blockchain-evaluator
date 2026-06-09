@@ -116,9 +116,8 @@ async def registrar_en_blockchain(
 
     logger.info(f"[BLOCKCHAIN] Tx enviada: {tx_hash.hex()}")
 
-    # Esperar confirmación (en un thread separado para no bloquear el event loop)
     receipt = await asyncio.get_event_loop().run_in_executor(
-        None, lambda: w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
+        None, lambda: w3.eth.wait_for_transaction_receipt(tx_hash, timeout=600)
     )
 
     if receipt.status != 1:
@@ -312,9 +311,10 @@ class ProMenuSelect(discord.ui.Select):
             ),
         ]
         super().__init__(
-            placeholder="⚡ Selecciona una función Pro...",
+            placeholder="🚧 [PRÓXIMAMENTE] Funciones Pro...",
             options=opciones,
             custom_id="pro_menu_select",
+            disabled=True,
         )
 
     async def callback(self, interaction: discord.Interaction):
@@ -334,20 +334,18 @@ class EduChainView(discord.ui.View):
         self.add_item(ProMenuSelect())
 
     @discord.ui.button(
-        label="Iniciar Auditoría",
+        label="📥 Arrastra archivo .json aquí para auditar",
         style=discord.ButtonStyle.primary,
-        emoji="📋",
+        custom_id="btn_auditoria_persistent",
         row=1,
+        disabled=True,
     )
     async def btn_auditoria(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         await interaction.response.send_message(
-            "📂 **Agente EduChain listo.**\n"
-            "Adjunta el archivo `.json` de evaluación docente en este canal.\n"
-            "```json\n"
-            '{\n  "nombre": "Nombre Docente",\n  "involucramiento": 3.5,\n  "razonamiento": 2.8,\n  "retroalimentacion": 3.1\n}\n'
-            "```",
+            "📥 **Arrastra tu archivo `.json` de evaluación aquí para firmarlo en la blockchain.**\n\n"
+            "*El bot lo detectará automáticamente y registrará el hash en Syscoin.*",
             ephemeral=True,
         )
 
@@ -356,163 +354,29 @@ class EduChainView(discord.ui.View):
 #  HANDLERS — Funciones Pro
 # ─────────────────────────────────────────────
 async def mostrar_salud_agente(interaction: discord.Interaction):
-    """Muestra el balance tSYS real y estado operativo del agente."""
-    balance = obtener_balance_tsys()
-    is_connected = w3.is_connected()
-    total_onchain = obtener_total_evaluaciones()
-
     embed = discord.Embed(
-        title="🫀 Estado de Salud — EduChain Agent",
-        description="Diagnóstico operativo en tiempo real con datos **on-chain reales**",
-        color=color_por_salud(balance),
-        timestamp=datetime.datetime.utcnow(),
+        title=" PRÓXIMAMENTE ",
+        description="Esta función Pro está en desarrollo y estará disponible pronto.",
+        color=0xFCA311,  # Naranja contrastante
     )
-
-    # Conexión
-    estado_rpc = "✅ Conectado" if is_connected else "❌ Desconectado"
-    embed.add_field(
-        name="🌐 Nodo RPC",
-        value=f"`{RPC_URL}`\nEstado: {estado_rpc}",
-        inline=False,
-    )
-
-    # Estado general
-    embed.add_field(
-        name="Estado General",
-        value=agente.estado_salud(),
-        inline=False,
-    )
-
-    # Balance real
-    if balance >= 0:
-        barra = generar_barra(min(balance / 0.1 * 100, 100))
-        embed.add_field(
-            name="💰 Balance tSYS (Real)",
-            value=f"`{barra}` **{balance:.6f} tSYS**",
-            inline=False,
-        )
-        auditorias_estimadas = int(balance / AgentState.COSTO_ESTIMADO_GAS) if AgentState.COSTO_ESTIMADO_GAS > 0 else "∞"
-        embed.add_field(
-            name="Auditorías Restantes Estimadas",
-            value=f"`~{auditorias_estimadas}` (basado en gas estimado)",
-            inline=True,
-        )
-    else:
-        embed.add_field(
-            name="💰 Balance tSYS",
-            value="⚠️ No se pudo obtener (nodo desconectado)",
-            inline=False,
-        )
-
-    # Contrato
-    contrato_estado = f"`{CONTRACT_ADDRESS}`" if contract else "⚠️ No configurado"
-    embed.add_field(name="📜 Contrato", value=contrato_estado, inline=False)
-    embed.add_field(name="🔗 Evaluaciones On-Chain", value=f"`{total_onchain}`", inline=True)
-    embed.add_field(name="📊 Evaluaciones Sesión", value=f"`{agente.auditorias_sesion}`", inline=True)
-
-    # Uptime
-    uptime = str(datetime.datetime.utcnow() - agente.inicio).split(".")[0]
-    embed.add_field(name="⏱ Uptime", value=f"`{uptime}`", inline=True)
-
-    embed.set_footer(text=f"EduChain GovTech Auditor • Syscoin Tanenbaum Testnet • Chain ID {CHAIN_ID}")
-
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def mostrar_blockchain(interaction: discord.Interaction):
-    """Muestra los últimos registros on-chain de la sesión."""
-    ultimos = agente.ultimos_registros(3)
-
     embed = discord.Embed(
-        title="🔍 Explorador de Transparencia — Audit Trail On-Chain",
-        description=f"Últimos registros inmutables en **Syscoin Tanenbaum Testnet** • ODS 16",
-        color=0x0FA3B1,
-        timestamp=datetime.datetime.utcnow(),
+        title=" PRÓXIMAMENTE ",
+        description="Esta función Pro está en desarrollo y estará disponible pronto.",
+        color=0xFCA311,
     )
-
-    if not ultimos:
-        embed.add_field(
-            name="Sin registros en esta sesión",
-            value="Adjunta un archivo `.json` para generar el primer registro on-chain.",
-            inline=False,
-        )
-    else:
-        for entrada in reversed(ultimos):
-            tx_link = f"[Ver en Explorer]({entrada['explorer_url']})" if entrada.get("explorer_url") else "N/A"
-            embed.add_field(
-                name=f"📦 Bloque #{entrada['bloque_contrato']} — {entrada['docente']}",
-                value=(
-                    f"**Hash:** `{entrada['hash'][:24]}...`\n"
-                    f"**Score:** `{entrada['score']}`\n"
-                    f"**Tx:** `{entrada['tx_hash'][:18]}...`\n"
-                    f"**Chain Block:** `#{entrada['bloque_chain']}`\n"
-                    f"🔗 {tx_link}"
-                ),
-                inline=False,
-            )
-
-    total_onchain = obtener_total_evaluaciones()
-    embed.add_field(
-        name="Total Evaluaciones On-Chain",
-        value=f"`{total_onchain}`",
-        inline=True,
-    )
-    embed.set_footer(text="Registro inmutable • SHA-256 • Syscoin NEVM • EduChain Ledger")
-
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def mostrar_reporte_ugel(interaction: discord.Interaction):
-    """Genera el reporte ejecutivo para directivos UGEL."""
-    r = agente.reporte_ugel()
-
     embed = discord.Embed(
-        title="📊 Reporte Ejecutivo — UGEL Stats",
-        description="Resumen consolidado para toma de decisiones directivas\n*Datos combinados: blockchain + sesión actual*",
-        color=0x2DC653,
-        timestamp=datetime.datetime.utcnow(),
+        title=" PRÓXIMAMENTE ",
+        description="Esta función Pro está en desarrollo y estará disponible pronto.",
+        color=0xFCA311,
     )
-
-    embed.add_field(
-        name="🔗 Total On-Chain (histórico)",
-        value=f"```{r['total_onchain']} evaluaciones```",
-        inline=True,
-    )
-
-    if r["sesion"] == 0:
-        embed.add_field(
-            name="📋 Esta Sesión",
-            value="No se han procesado auditorías todavía.",
-            inline=False,
-        )
-    else:
-        embed.add_field(name="📋 Auditados (sesión)", value=f"```{r['sesion']} docentes```", inline=True)
-        embed.add_field(name="✅ Aprobados", value=f"```{r['aprobados']}```", inline=True)
-        embed.add_field(name="⚠️ En Alerta", value=f"```{r['alertas']}```", inline=True)
-        embed.add_field(
-            name="Tasa de Aprobación",
-            value=f"```{r['tasa_aprobacion']}%```",
-            inline=False,
-        )
-
-        # Clasificación de rendimiento
-        if r["tasa_aprobacion"] >= 80:
-            clasificacion = "🏆 Institución de Alto Rendimiento"
-        elif r["tasa_aprobacion"] >= 60:
-            clasificacion = "✅ Rendimiento Satisfactorio"
-        else:
-            clasificacion = "🚨 Requiere Intervención Urgente"
-
-        embed.add_field(name="Clasificación UGEL", value=clasificacion, inline=False)
-
-    embed.add_field(name="Estado del Agente", value=r["estado"], inline=True)
-    embed.add_field(
-        name="💰 Balance tSYS",
-        value=f"`{r['balance_tsys']:.6f}`" if r["balance_tsys"] >= 0 else "⚠️ N/A",
-        inline=True,
-    )
-    embed.set_footer(text="EduChain GovTech Auditor • Para uso de directivos UGEL/MINEDU")
-
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
@@ -784,8 +648,13 @@ async def on_message(message):
 
 
 # ─────────────────────────────────────────────
-#  EVENTO ON_READY
+#  EVENTO ON_READY y SETUP
 # ─────────────────────────────────────────────
+async def setup_hook():
+    bot.add_view(EduChainView())
+
+bot.setup_hook = setup_hook
+
 @bot.event
 async def on_ready():
     is_connected = w3.is_connected()
