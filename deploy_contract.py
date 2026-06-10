@@ -1,9 +1,9 @@
 """
-Deploy EduChainRegistry.sol en Syscoin Tanenbaum Testnet
-Red: Syscoin Tanenbaum NEVM Testnet
-Chain ID: 5700
-RPC: https://rpc.tanenbaum.io
-Explorer: https://tanenbaum.io
+Deploy EduChainRegistry.sol en Syscoin zkTanenbaum Testnet
+Red: Syscoin zkTanenbaum Testnet
+Chain ID: 57057
+RPC: https://rpc-zk.tanenbaum.io
+Explorer: https://explorer-zk.tanenbaum.io
 """
 
 import json
@@ -22,7 +22,7 @@ RPC_URL = os.getenv("RPC_URL", "https://rpc.tanenbaum.io")
 CHAIN_ID = int(os.getenv("CHAIN_ID", "5700"))
 
 print("=" * 60)
-print("  EduChain Registry - Deploy en Syscoin Tanenbaum Testnet")
+print("  EduChain Registry - Deploy en Syscoin zkTanenbaum Testnet")
 print("=" * 60)
 print(f"  RPC:      {RPC_URL}")
 print(f"  Chain ID: {CHAIN_ID}")
@@ -36,7 +36,7 @@ if not w3.is_connected():
     print("ERROR: No se pudo conectar al nodo RPC")
     sys.exit(1)
 
-print(f"[OK] Conectado a Syscoin Tanenbaum Testnet (Chain ID: {CHAIN_ID})")
+print(f"[OK] Conectado a Syscoin zkTanenbaum Testnet (Chain ID: {CHAIN_ID})")
 
 # --- Verificar balance ---
 wallet = Web3.to_checksum_address(WALLET_ADDRESS)
@@ -91,7 +91,7 @@ with open(abi_path, "w") as f:
 print("[OK] ABI guardado en contract_abi.json")
 
 # --- Desplegar ---
-print("[...] Desplegando en Syscoin Tanenbaum Testnet...")
+print("[...] Desplegando en Syscoin zkTanenbaum Testnet...")
 
 contract = w3.eth.contract(abi=abi, bytecode=bytecode)
 nonce = w3.eth.get_transaction_count(wallet)
@@ -142,7 +142,7 @@ while time.time() - start_time < timeout:
 if receipt is None:
     print(f"TIMEOUT: La transaccion no se confirmo en {timeout}s")
     print(f"Tx Hash: 0x{tx_hash.hex()}")
-    print("Puedes verificar manualmente en: https://tanenbaum.io")
+    print("Puedes verificar manualmente en: https://explorer-zk.tanenbaum.io")
     sys.exit(1)
 
 if receipt.status == 1:
@@ -155,10 +155,10 @@ if receipt.status == 1:
     print(f"  Block Number:     {receipt.blockNumber}")
     print(f"  Gas Used:         {receipt.gasUsed}")
     print(f"  Explorer:")
-    print(f"     https://tanenbaum.io/address/{contract_address}")
+    print(f"     https://explorer-zk.tanenbaum.io/address/{contract_address}")
     tx_hex = tx_hash.hex()
     print(f"  Tx:")
-    print(f"     https://tanenbaum.io/tx/0x{tx_hex}")
+    print(f"     https://explorer-zk.tanenbaum.io/tx/0x{tx_hex}")
     print("=" * 60)
 
     # Auto-actualizar .env

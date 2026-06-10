@@ -1,4 +1,4 @@
-"""Verificar que el contrato funciona correctamente en Syscoin Tanenbaum Testnet"""
+"""Verificar que el contrato funciona correctamente en Syscoin zkTanenbaum Testnet"""
 import json
 import os
 from dotenv import load_dotenv
@@ -17,7 +17,7 @@ print("=" * 60)
 print("  Verificacion del Contrato EduChainRegistry")
 print("=" * 60)
 print("Conectado: " + str(w3.is_connected()))
-print("Red: Syscoin Tanenbaum Testnet (Chain ID: " + str(CHAIN_ID) + ")")
+print("Red: Syscoin zkTanenbaum Testnet (Chain ID: " + str(CHAIN_ID) + ")")
 print("Contrato: " + str(CONTRACT_ADDRESS))
 
 # Cargar ABI
@@ -47,7 +47,7 @@ else:
     print("[ERROR] Owner no coincide!")
 
 print("")
-print("Explorer: https://tanenbaum.io/address/" + str(CONTRACT_ADDRESS))
+print("Explorer: https://explorer-zk.tanenbaum.io/address/" + str(CONTRACT_ADDRESS))
 print("=" * 60)
 print("TODO LISTO - El contrato funciona correctamente")
 print("=" * 60)
